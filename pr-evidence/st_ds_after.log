@@ -1,0 +1,26 @@
+Using user-specified patch size: (65, 96, 96)
+
+--- Initializing Structure Tensor Inferer ---
+Initializing Inferer with output_dir: 'st_ds'
+
+--- Starting Structure Tensor Computation ---
+  Chunk occupancy cache skipped for /home/claude/vc/realdata/scroll1a_L2_crop.zarr/0 (could not read .zarray signature; no caching this run)
+/home/claude/scrollprize/villa/vesuvius/src/vesuvius/data/zarr_chunk_index.py:250: UserWarning: Failed to read /home/claude/vc/realdata/scroll1a_L2_crop.zarr/0/.zarray: [Errno 2] No such file or directory: '/home/claude/vc/realdata/scroll1a_L2_crop.zarr/0/.zarray'
+  warnings.warn(f"Failed to read {zarray_url}: {e}")
+Creating output store at: st_ds.zarr
+Full volume shape: (6, 65, 96, 96)
+Chunk shape: (6, 65, 96, 96)
+Struct-Tensor:   0%|          | 0/1 [00:00<?, ?it/s]Struct-Tensor: 100%|██████████| 1/1 [00:00<00:00,  3.37it/s]Struct-Tensor: 100%|██████████| 1/1 [00:00<00:00,  3.37it/s]
+
+--- Structure Tensor Computation Finished ---
+Structure tensor saved to: st_ds.zarr/structure_tensor
+
+--- Running Eigenanalysis ---
+[Eigen] Chunks:   0%|          | 0/27 [00:00<?, ?it/s][Eigen] Chunks:   4%|▎         | 1/27 [00:00<00:02,  8.78it/s][Eigen] Chunks:   7%|▋         | 2/27 [00:00<00:02,  9.12it/s][Eigen] Chunks:  15%|█▍        | 4/27 [00:00<00:02,  9.88it/s][Eigen] Chunks:  22%|██▏       | 6/27 [00:00<00:01, 10.73it/s][Eigen] Chunks:  30%|██▉       | 8/27 [00:00<00:01, 11.06it/s][Eigen] Chunks:  37%|███▋      | 10/27 [00:00<00:01, 10.65it/s][Eigen] Chunks:  44%|████▍     | 12/27 [00:01<00:01, 11.21it/s][Eigen] Chunks:  52%|█████▏    | 14/27 [00:01<00:01, 11.56it/s][Eigen] Chunks:  59%|█████▉    | 16/27 [00:01<00:00, 11.44it/s][Eigen] Chunks:  67%|██████▋   | 18/27 [00:01<00:00, 11.70it/s][Eigen] Chunks:  78%|███████▊  | 21/27 [00:01<00:00, 15.32it/s][Eigen] Chunks:  89%|████████▉ | 24/27 [00:01<00:00, 17.91it/s][Eigen] Chunks: 100%|██████████| 27/27 [00:01<00:00, 20.58it/s][Eigen] Chunks: 100%|██████████| 27/27 [00:01<00:00, 13.88it/s]
+
+--- All computations completed successfully ---
+Final output contains:
+  - Structure tensor: st_ds.zarr/structure_tensor
+  - first_component/, second_component/, normal/, confidence/ (scale '1', ds=2)
+  - Eigenvectors: st_ds.zarr/eigenvectors
+  - Eigenvalues: st_ds.zarr/eigenvalues

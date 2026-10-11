@@ -1,0 +1,26 @@
+Using user-specified patch size: (65, 96, 96)
+
+--- Initializing Structure Tensor Inferer ---
+Initializing Inferer with output_dir: 'st_ds'
+
+--- Starting Structure Tensor Computation ---
+  Chunk occupancy cache skipped for /home/claude/vc/realdata/scroll1a_L2_crop.zarr/0 (could not read .zarray signature; no caching this run)
+/home/claude/scrollprize/villa/vesuvius/src/vesuvius/data/zarr_chunk_index.py:250: UserWarning: Failed to read /home/claude/vc/realdata/scroll1a_L2_crop.zarr/0/.zarray: [Errno 2] No such file or directory: '/home/claude/vc/realdata/scroll1a_L2_crop.zarr/0/.zarray'
+  warnings.warn(f"Failed to read {zarray_url}: {e}")
+Creating output store at: st_ds.zarr
+Full volume shape: (6, 65, 96, 96)
+Chunk shape: (6, 65, 96, 96)
+Struct-Tensor:   0%|          | 0/1 [00:00<?, ?it/s]Struct-Tensor: 100%|██████████| 1/1 [00:00<00:00,  3.33it/s]Struct-Tensor: 100%|██████████| 1/1 [00:00<00:00,  3.32it/s]
+
+--- Structure Tensor Computation Finished ---
+Structure tensor saved to: st_ds.zarr/structure_tensor
+
+--- Running Eigenanalysis ---
+[Eigen] Chunks:   0%|          | 0/27 [00:00<?, ?it/s][Eigen] Chunks:   4%|▎         | 1/27 [00:01<00:40,  1.57s/it][Eigen] Chunks:  11%|█         | 3/27 [00:01<00:11,  2.17it/s][Eigen] Chunks:  19%|█▊        | 5/27 [00:01<00:05,  3.76it/s][Eigen] Chunks:  26%|██▌       | 7/27 [00:02<00:03,  5.38it/s][Eigen] Chunks:  33%|███▎      | 9/27 [00:02<00:02,  6.77it/s][Eigen] Chunks:  41%|████      | 11/27 [00:02<00:01,  8.24it/s][Eigen] Chunks:  48%|████▊     | 13/27 [00:02<00:01,  9.60it/s][Eigen] Chunks:  56%|█████▌    | 15/27 [00:02<00:01, 10.64it/s][Eigen] Chunks:  63%|██████▎   | 17/27 [00:02<00:00, 11.68it/s][Eigen] Chunks:  70%|███████   | 19/27 [00:03<00:00, 10.22it/s][Eigen] Chunks:  85%|████████▌ | 23/27 [00:03<00:00, 15.40it/s][Eigen] Chunks: 100%|██████████| 27/27 [00:03<00:00,  8.41it/s]
+
+--- All computations completed successfully ---
+Final output contains:
+  - Structure tensor: st_ds.zarr/structure_tensor
+  - first_component/, second_component/, normal/, confidence/ (scale '1', ds=2)
+  - Eigenvectors: st_ds.zarr/eigenvectors
+  - Eigenvalues: st_ds.zarr/eigenvalues

@@ -1,0 +1,4 @@
+real crop (257, 256, 256) level 2 origin (1797, 986, 1012)
+[base] --bbox '1,2,3': exit 1 in 17s | ValueError: --bbox z-range '1' must contain ':' (use ':' alone for the full axis) / NameError: name 'parser' is not defined
+[fixed] --bbox '1,2,3': exit 2 in 12s | python -m vesuvius.models.run.inference: error: --bbox z-range '1' must contain ':' (use ':' alone for the full axis)
+[fixed] --bbox '64,192,64,192,64,192': exit 2 in 11s | python -m vesuvius.models.run.inference: error: --bbox expects three comma-separated ranges 'z0:z1,y0:y1,x0:x1', got '64,192,64,192,64,192'

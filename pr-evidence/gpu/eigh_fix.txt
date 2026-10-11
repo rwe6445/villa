@@ -1,0 +1,10 @@
+torch 2.12.1+cu130 Tesla T4
+  cusolver   float64  batch     1024: OK 0.171s peak 0.52GiB maxerr 8.0e-15
+  cusolver   float64  batch     4096: OK 0.013s peak 2.07GiB maxerr 7.1e-15
+  cusolver   float64  batch    16384: OK 0.048s peak 8.29GiB maxerr 8.9e-15
+  cusolver   float64  batch    32768: OutOfMemoryError Tried to allocate 16.57 GiB. G
+  cusolver   float32  batch    65536: OutOfMemoryError Tried to allocate 16.57 GiB. G
+  cusolver   float32  batch  1048576: OutOfMemoryError Tried to allocate 265.11 GiB. 
+  magma      float64  batch    65536: OutOfMemoryError Tried to allocate 33.14 GiB. G
+  magma      float64  batch  1048576: OutOfMemoryError Tried to allocate 530.22 GiB. 
+  cpu float64 batch 1048576: 1.89s

@@ -1,0 +1,13 @@
+GPU: Tesla T4  torch 2.14.1+cu130
+real crop (257, 256, 256) from https://dl.ash2txt.org/full-scrolls/Scroll1/PHercParis4.volpkg/volumes_zarr_standardized/54keV_7.91um_Scroll1A.zarr/ level 2 origin (1797, 986, 1012)
+[base] compute_st runner: exit 1 in 44s |     return self._op(*args, **kwargs) /            ~~~~~~~~^^^^^^^^^^^^^^^^^ / torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 530.22 GiB. GPU 0 has a total capacity of 14.57 GiB of which 14.05 GiB is free. Process 1 has 528.00 MiB memory in use. Of the allocated memory 364.00 MiB is al
+[base] compute_vf xi=5 ds=2: exit 0 in 55s | Vector‐field chunks:  92%|█████████▏| 11/12 [00:46<00:02,  2.02s/chunk] / Vector‐field chunks: 100%|██████████| 12/12 [00:46<00:00,  1.57s/chunk] / Vector‐field chunks: 100%|██████████| 12/12 [00:46<00:00,  3.89s/chunk]
+[base] vf shape (129, 128, 128); last plane written 0/16384; planes fully written 128/129
+[base] create_st direct: exit 1 in 26s |     return self._op(*args, **kwargs) /            ~~~~~~~~^^^^^^^^^^^^^^^^^ / torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 530.22 GiB. GPU 0 has a total capacity of 14.57 GiB of which 14.03 GiB is free. Process 1 has 546.00 MiB memory in use. Of the allocated memory 364.02 MiB is al
+[base] create_st normal/z scales {"0": [257, 256, 256]} | eigenvectors present: False
+[fixed] compute_st runner: exit 0 in 86s | [Eigen] Chunks:  92%|█████████▏| 11/12 [00:58<00:03,  3.55s/it] / [Eigen] Chunks: 100%|██████████| 12/12 [00:58<00:00,  2.54s/it] / [Eigen] Chunks: 100%|██████████| 12/12 [00:58<00:00,  4.87s/it]
+[fixed] compute_vf xi=5 ds=2: exit 0 in 59s | Vector‐field chunks:  92%|█████████▏| 11/12 [00:48<00:02,  2.26s/chunk] / Vector‐field chunks: 100%|██████████| 12/12 [00:49<00:00,  1.78s/chunk] / Vector‐field chunks: 100%|██████████| 12/12 [00:49<00:00,  4.12s/chunk]
+[fixed] vf shape (129, 128, 128); last plane written 16384/16384; planes fully written 129/129
+[fixed] create_st direct: exit 0 in 63s | [Eigen] Chunks:  92%|█████████▏| 11/12 [00:45<00:01,  1.88s/it] / [Eigen] Chunks: 100%|██████████| 12/12 [00:45<00:00,  1.39s/it] / [Eigen] Chunks: 100%|██████████| 12/12 [00:45<00:00,  3.81s/it]
+[fixed] create_st normal/z scales {"1": [129, 128, 128]} | eigenvectors present: True
+planes 0..127 byte-identical base vs fixed: False

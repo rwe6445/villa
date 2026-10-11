@@ -1,0 +1,10 @@
+torch 2.12.1+cu130 cuda 13.0 NVIDIA L4
+  batch    65536: OutOfMemoryError Tried to allocate 33.14 GiB. GPU
+  batch   262144: OutOfMemoryError Tried to allocate 132.56 GiB. GP
+  batch   524288: OutOfMemoryError Tried to allocate 265.11 GiB. GP
+  batch  1048576: OutOfMemoryError Tried to allocate 530.22 GiB. GP
+torch 2.12.1+cu130 cuda 13.0 NVIDIA A100-SXM4-40GB
+  batch    65536: RuntimeError cusolver error: CUSOLVER_STATUS_INTERNAL_ERROR, when calling
+  batch   262144: OutOfMemoryError Tried to allocate 132.56 GiB. GP
+  batch   524288: OutOfMemoryError Tried to allocate 265.11 GiB. GP
+  batch  1048576: OutOfMemoryError Tried to allocate 530.22 GiB. GP

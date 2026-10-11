@@ -1,0 +1,4 @@
+real crop (257, 256, 256) level 2 origin (1797, 986, 1012)
+[fixed] --bbox '64:192,64:192,64:192': exit 0 in 77s | Inferring Part 0: 100%|██████████| 8/8 [00:46<00:00,  1.51s/it] / Inferring Part 0: 100%|██████████| 8/8 [00:47<00:00,  5.96s/it]
+    output array pred_fixed_ok/logits_part_0.zarr shape (8, 2, 192, 192, 192) dtype float16
+    output array pred_fixed_ok/coordinates_part_0.zarr shape (8, 3) dtype int32
