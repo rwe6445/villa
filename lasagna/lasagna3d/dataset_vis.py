@@ -352,6 +352,7 @@ def _read_checkpoint_meta(model_path: str, patch_size_override: int | None = Non
 
 def _load_model(model_path: str, patch_size: int, device):
     """Build + load a checkpoint once per run (strict), cache by path."""
+    import torch
     from train_tifxyz import build_model
     key = (model_path, patch_size, str(device))
     if key not in _MODEL_CACHE:

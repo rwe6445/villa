@@ -61,7 +61,8 @@ def normal_loss_maps(*, res: fit_model.FitResult3D) -> tuple[torch.Tensor, torch
 	# Mask: grad_mag > 0
 	mask = res.mask_lr.squeeze(1) > 0.0
 	if _mask_zero_normals:
-		mask = mask & ((data_nx != 0.0) | (data_ny != 0.0))
+		# zero hemisphere-encoded data normal (nx == ny == 0) marks missing data
+		mask = mask & ((target[..., 0] != 0.0) | (target[..., 1] != 0.0))
 	mask = mask.to(dtype=normal.dtype)
 
 	return lm.unsqueeze(1), mask.unsqueeze(1)
