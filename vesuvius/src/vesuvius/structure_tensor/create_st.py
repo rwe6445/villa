@@ -318,29 +318,22 @@ class StructureTensorInferer(Inferer, nn.Module):
         # Amount of padding on each side (pz, py, px), computed in __init__
         pz, py, px = self._total_pad
 
-        with tqdm(total=total, desc="Struct-Tensor") as pbar:
-            for batch_data in self.dataloader:
-                # Handle different batch data formats
-                if isinstance(batch_data, dict):
-                    data_batch    = batch_data['data']
-                    pos_batch     = batch_data.get('pos', [])
-                    indices_batch = batch_data.get('index', [])
-                else:
-                    data_batch    = batch_data
-                    pos_batch     = []
-                    indices_batch = []
+        # Only the patch positions are needed here: each patch is read below,
+        # with its padding, straight from input_src. Iterating the DataLoader
+        # would fetch every patch a second time and discard it.
+        view = self.dataset.active_view() if self.dataset is not None else None
+        if isinstance(view, torch.utils.data.Subset):
+            active = list(view.indices)
+        else:
+            active = list(range(total))
 
-                batch_size = data_batch.shape[0]
+        with tqdm(total=len(active), desc="Struct-Tensor") as pbar:
+            for start in range(0, len(active), self.batch_size):
+                batch_idx = active[start:start + self.batch_size]
+                batch_size = len(batch_idx)
 
                 for i in range(batch_size):
-                    # Determine the unpadded patch start
-                    if pos_batch and i < len(pos_batch):
-                        z0, y0, x0 = pos_batch[i]
-                    elif indices_batch and i < len(indices_batch):
-                        idx = indices_batch[i]
-                        z0, y0, x0 = self.patch_start_coords_list[idx]
-                    else:
-                        z0, y0, x0 = self.patch_start_coords_list[processed_count + i]
+                    z0, y0, x0 = self.patch_start_coords_list[batch_idx[i]]
 
                     # Compute end coords of the original patch
                     z1 = z0 + self.patch_size[0]
