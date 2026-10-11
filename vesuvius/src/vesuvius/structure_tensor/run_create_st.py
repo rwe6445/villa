@@ -136,6 +136,8 @@ def run_structure_tensor_part(args, part_id, gpu_id, shared_output_path):
     
     # Basic arguments
     cmd.extend(['--input_dir', args.input_dir])
+    if args.bbox:
+        cmd.extend(['--bbox', args.bbox])
     # Pass the shared output path directly so each process writes to the same zarr store
     cmd.extend(['--output_dir', shared_output_path])
     cmd.extend(['--mode', 'structure-tensor'])
@@ -262,6 +264,9 @@ def parse_arguments():
     # Basic I/O arguments
     parser.add_argument('--input_dir', type=str, required=False,
                         help='Path to the input Zarr volume (required unless --mode eigenanalysis)')
+    parser.add_argument('--bbox', type=str, default=None,
+                        help='Restrict the structure tensor to "z0:z1,y0:y1,x0:x1" (half-open, global voxel '
+                             'coordinates; a bound may be omitted). Output keeps the full-volume frame.')
     parser.add_argument('--output_dir', type=str, required=True, 
                         help='Path to store output results')
     

@@ -12,8 +12,9 @@ from torch.utils.data import Dataset, DataLoader
 import zarr
 import numcodecs
 
-from vesuvius.models.run.inference import Inferer
+from vesuvius.models.run.inference import Inferer, _parse_bbox_arg
 from vesuvius.data.utils import open_zarr, open_zarr_group, create_zarr_array
+from vesuvius.data.zarr_chunk_index import build_chunk_occupancy, compute_patch_non_empty_mask
 from vesuvius.image_proc.geometry.structure_tensor import (
     StructureTensorComputer,
     _get_gaussian_kernel_3d,
@@ -645,6 +646,17 @@ def _finalize_structure_tensor_torch(
                            y0, min(y0+cy,Y),
                            x0, min(x0+cx,X))
     chunks = list(gen_bounds())
+    # Unwritten structure-tensor chunks are zero and give zero eigen outputs,
+    # which the output arrays already hold as fill_value. After a --bbox run
+    # only the ROI was written, so solve only chunks that overlap stored data.
+    occupancy = build_chunk_occupancy(
+        f"{zarr_path.rstrip('/')}/structure_tensor", tuple(src.chunks), tuple(src.shape),
+        use_cache=False,
+    )
+    if occupancy is not None:
+        keep = compute_patch_non_empty_mask(occupancy, [c[0::2] for c in chunks], (cz, cy, cx),
+                                            tuple(src.chunks[1:]))
+        chunks = [c for c, k in zip(chunks, keep) if k]
     if verbose:
         print(f"[Eigen] {len(chunks)} chunks to solve the eigenvalue problem on")
 
@@ -820,6 +832,9 @@ def main():
     # Basic I/O arguments
     parser.add_argument('--input_dir', type=str, required=False,
                         help='Path to the input Zarr volume')
+    parser.add_argument('--bbox', type=str, default=None,
+                        help='Restrict the structure tensor to "z0:z1,y0:y1,x0:x1" (half-open, global voxel '
+                             'coordinates; a bound may be omitted). Output keeps the full-volume frame.')
     parser.add_argument('--output_dir', type=str, required=False,
                         help='Path to store output results')
     
@@ -965,7 +980,8 @@ def main():
             verbose=args.verbose,
             compressor_name=args.zarr_compressor,
             compression_level=args.zarr_compression_level,
-            num_dataloader_workers=args.num_workers
+            num_dataloader_workers=args.num_workers,
+            bbox=_parse_bbox_arg(args.bbox) if args.bbox else None,
         )
         
         try:
