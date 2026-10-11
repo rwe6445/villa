@@ -12,6 +12,7 @@ import multiprocessing as mp
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from vesuvius.data.utils import open_zarr
+from vesuvius.data.zarr_chunk_index import build_chunk_occupancy, compute_patch_non_empty_mask
 from vesuvius.utils.io.zarr_utils import wait_for_zarr_creation
 from vesuvius.utils.k8s import get_tqdm_kwargs
 from vesuvius.utils.cli import HyphenUnderscoreParser
@@ -412,6 +413,22 @@ def finalize_logits(
 
     # --- Calculate Z-range for this part ---
     all_chunk_infos = get_chunk_indices(input_shape, output_chunks)
+
+    # Unwritten logits chunks read back as fill_value, which process_chunk
+    # already treats as empty. After a `predict --bbox` run the logits span the
+    # whole volume but only the ROI was written, so skip unwritten chunks up
+    # front instead of opening and reading every chunk of the volume.
+    occupancy = build_chunk_occupancy(
+        input_path, tuple(input_store.chunks), tuple(input_shape),
+        use_cache=False,
+    )
+    if occupancy is not None:
+        n_before = len(all_chunk_infos)
+        starts = [tuple(i * c for i, c in zip(ci['indices'], output_chunks[1:])) for ci in all_chunk_infos]
+        keep = compute_patch_non_empty_mask(occupancy, starts, tuple(output_chunks[1:]),
+                                            tuple(input_store.chunks[1:]))
+        all_chunk_infos = [ci for ci, k in zip(all_chunk_infos, keep) if k]
+        print(f"Skipping {n_before - len(all_chunk_infos)} of {n_before} chunks with no stored logits")
 
     if num_parts > 1:
         total_z = spatial_shape[0]  # Z dimension
