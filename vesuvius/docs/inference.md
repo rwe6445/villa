@@ -4,7 +4,7 @@ The Vesuvius tooling exposes three command-line stages plus a convenience orches
 
 1. `vesuvius.predict` — run a trained model and write patch logits.
 2. `vesuvius.blend_logits` — merge overlapping patches with Gaussian weighting.
-3. `vesuvius.finalize_outputs` — convert logits into probabilities or masks and build a multiscale Zarr.
+3. `vesuvius.finalize_outputs` — convert logits into probabilities or masks and write a single `uint8` Zarr array.
 
 All commands honour local paths and remote storage backed by `fsspec` (for example S3). Run `vesuvius.accept_terms --yes` before accessing remote scroll volumes.
 
@@ -31,24 +31,20 @@ vesuvius.predict \
 | `--input_anon` | Read the input bucket anonymously. Required for `s3://vesuvius-challenge-open-data/...`, which is public but unsigned.
 | `--output_dir` (required) | Destination folder for logits (`logits_part_{id}.zarr`) and coordinates.
 | `--input_format` | Force `zarr`, `tiff`, or `volume` detection. Usually optional.
-| `--tta_type` / `--disable_tta` | Choose `rotation` (default) or `mirroring`, or disable test-time augmentation.
+| `--tta_type` / `--disable_tta` | Choose `mirroring` (default) or `rotation`, or disable test-time augmentation.
 | `--num_parts` / `--part_id` | Partition inference so multiple machines can process different chunks.
 | `--bbox` | Restrict inference to a region of interest: `"z0:z1,y0:y1,x0:x1"` in global voxel coordinates, half-open. Omit a bound to reach the volume edge (`"1000:1400,:,2000:"`). See [Region-of-interest inference](#region-of-interest-inference).
 | `--chunk_cache_mb` | Keep up to this many MB of fetched input chunks in an in-memory LRU cache (zarr 3), so overlapping patches do not download the same chunks again. Each DataLoader worker keeps its own cache. Default `0` (off).
 | `--overlap` | Fractional patch overlap (0–1, default `0.5`).
 | `--batch_size` | Inference batch size (default `1`).
 | `--patch_size` | Override the model patch size using a comma-separated list (e.g. `192,192,192`).
-| `--mode` | `binary`/`multiclass` (default segmentation) or `surface_frame` to keep 9-channel tangent frames.
-| `--tif-activation` | When writing TIFF outputs, pick `softmax`, `argmax`, or `none`.
-| `--save_softmax` | Legacy flag for saving softmax logits (consider `--tif-activation`).
+| `--save_softmax` | Legacy flag for saving softmax logits.
 | `--normalization` | Runtime normalization (`instance_zscore`, `global_zscore`, `instance_minmax`, `ct`, `none`).
-| `--intensity-properties-json` | nnU-Net style JSON with intensity stats for CT normalization.
 | `--device` | Device string such as `cuda`, `cuda:1`, or `cpu`.
 | `--skip_empty_patches` / `--no_skip_empty_patches` | Toggle automatic removal of homogeneous patches.
 | `--zarr_compressor` / `--zarr_compression_level` | Configure output compression (`zstd` with level `3` by default).
 | `--scroll_id`, `--segment_id`, `--energy`, `--resolution` | Metadata when reading remote scrolls via the `Volume` helper.
 | `--hf_token` | Hugging Face token for private repositories.
-| `--config-yaml` | Training YAML to resolve model architecture when the checkpoint lacks embedded metadata.
 | `--verbose` | Print detailed progress information.
 
 Distributed execution simply repeats the command with different `part_id` values. All workers must share the same `output_dir`:
@@ -120,7 +116,7 @@ The merged logits retain the same class/channel dimension as the individual part
 
 ## Stage 3 — `vesuvius.finalize_outputs`
 
-Finalize logits into probabilities or masks and optionally build a multiscale pyramid. The command writes OME-NGFF metadata and (when requested) deletes the intermediate logits directory.
+Finalize logits into probabilities or masks and write them as one `uint8` Zarr array in the same voxel frame as the input. The command (when requested) deletes the intermediate logits directory.
 
 ```bash
 vesuvius.finalize_outputs /tmp/merged_logits.zarr /tmp/final_output.zarr \
@@ -135,17 +131,17 @@ vesuvius.finalize_outputs /tmp/merged_logits.zarr /tmp/final_output.zarr \
 
 | Argument | Description |
 |----------|-------------|
-| `input_path` | Path to the blended logits Zarr (level `0` is the logits array).
-| `output_path` | Destination multiscale Zarr root.
-| `--mode` | `binary` (default), `multiclass`, or `surface_frame` (keeps 9-channel frame outputs; no thresholding).
-| `--threshold` | Binarize the probability map. In `binary` mode cuts at the probability given by `--threshold_value` (default `0.5`). In `multiclass` mode emits the argmax channel. Ignored in `surface_frame` mode.
+| `input_path` | Path to the blended logits Zarr array written by `blend_logits`.
+| `output_path` | Destination Zarr array, `uint8`, shape `(channels, Z, Y, X)`.
+| `--mode` | `binary` (default) or `multiclass`.
+| `--threshold` | Binarize the probability map. In `binary` mode cuts at the probability given by `--threshold_value` (default `0.5`). In `multiclass` mode emits the argmax channel.
 | `--threshold_value T` | Override the `--threshold` cutoff with `T` in `(0, 1)`. Requires `--threshold`. Binary mode only — rejected in `multiclass` since argmax ignores the cutoff.
 | `--delete_intermediates` | Remove the source logits after a successful run.
 | `--chunk_size` | Spatial chunk size for the output store (`Z,Y,X`). Defaults to the logits chunking.
 | `--num_workers` | Worker processes for finalization (defaults to half of CPU cores).
 | `--quiet` | Suppress verbose logging.
 
-Without `--threshold`, binary mode outputs a single softmax foreground channel; multiclass mode writes one channel per class plus an argmax channel. `surface_frame` mode bypasses thresholding entirely and stores orthonormal 9-channel frames in float32.
+Without `--threshold`, binary mode outputs a single softmax foreground channel; multiclass mode writes one channel per class plus an argmax channel.
 
 ## Full Remote Workflow Example
 
@@ -175,4 +171,4 @@ vesuvius.finalize_outputs s3://vesuvius/tmp/merged_logits.zarr s3://vesuvius/out
     --delete_intermediates
 ```
 
-After finalization the destination Zarr contains a multiscale hierarchy (`0/`, `1/`, …) and a `metadata.json` file describing the inference run. Rechunk the output if you plan to serve it through a viewer that expects different chunk sizes.
+After finalization the destination is a single `uint8` Zarr array of shape `(channels, Z, Y, X)` with no pyramid levels. Its attributes carry those of the merged logits (for example `original_volume_shape` and, after `--bbox`, `bbox`) plus `processing_mode`, `threshold_applied` and the empty-chunk counts. Rechunk the output if you plan to serve it through a viewer that expects different chunk sizes.
