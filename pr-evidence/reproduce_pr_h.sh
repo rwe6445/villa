@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Before/after for "zarr_tasks: write the per-level scale OME-NGFF 0.4 requires" on real scroll data.
 # Usage:  VILLA=/path/to/villa-clone  [VENV=/path/to/py3.14-venv]  bash reproduce_pr_h.sh
-# Needs:  Python 3.14 with `pip install -e villa/vesuvius tifffile opencv-python-headless ome-zarr-models`.
+# Needs:  Python 3.14 with `pip install -e villa/vesuvius tifffile tqdm opencv-python-headless ome-zarr-models`.
 #         Network access to dl.ash2txt.org. Runtime about 1 minute on 2 CPUs.
 set -euo pipefail
 : "${VILLA:?set VILLA to a villa clone that has upstream main and origin/pr-h-ngff-scale-v2}"
