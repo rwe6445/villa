@@ -1,0 +1,45 @@
+{
+  "part1_remote": {
+    "volume": "https://vesuvius-challenge-open-data.s3.us-east-1.amazonaws.com/PHercParis4/volumes/20260411134726-2.400um-0.2m-78keV-masked.zarr",
+    "scale": 2,
+    "chunks": 16,
+    "first_run_seconds_8_chunks": 5.99,
+    "resume_seconds_copy_8_plus_check_8": 4.22,
+    "rerun_seconds_check_default_8_of_16": 2.18,
+    "rerun_seconds_check_disabled": 0.73,
+    "resume_stats": {
+      "copied_counts_by_scale": {
+        "2": 8
+      },
+      "existing_counts_by_scale": {
+        "2": 8
+      }
+    },
+    "digests_recorded": 16
+  },
+  "part2_mirror": {
+    "main": {
+      "resume_outcome": "completed",
+      "error": null,
+      "output_chunks_by_version": {
+        "version_A": 8,
+        "version_B": 8,
+        "neither": 0
+      }
+    },
+    "this_branch": {
+      "resume_outcome": "stopped",
+      "error": "Source volume changed since this sparse output was started: 8 of 8 checked chunk(s) at scale 2 now read different values (first: [74, 30, 30]). Resuming would mix two source versions in one copy; rerun with --overwrite: /home/claude/work/demo_out/mirror_copy_this_branch.zarr",
+      "output_chunks_by_version": {
+        "version_A": 8,
+        "version_B": 0,
+        "neither": 8
+      },
+      "after_overwrite_chunks_by_version": {
+        "version_A": 0,
+        "version_B": 16,
+        "neither": 0
+      }
+    }
+  }
+}
